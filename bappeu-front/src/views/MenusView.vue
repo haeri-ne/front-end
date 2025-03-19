@@ -6,19 +6,26 @@
       <MenuCard v-if="menuStore.menus.length > 1" :menu="menuStore.menus[1]" :menuIndex="1" />
     </div>
     <br>
-    <p class="info-text">오늘 드신 식단을 눌러주세요</p>
+    <p class="info-text">{{ menuStore.selectedDate }}에 드신 식단을 눌러주세요</p>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import MenuCard from '../components/MenuCard.vue'
+import { watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
+import MenuCard from '../components/MenuCard.vue'
 
+const route = useRoute()
 const menuStore = useMenuStore()
 
-onMounted(async () => {
-  await menuStore.getMenus()
+watchEffect(async () => {
+  if (route.params.date) {
+    menuStore.selectedDate = route.params.date
+    if (menuStore.selectedDate) {
+      await menuStore.getMenusByDate()
+    }
+  }
 })
 </script>
 
