@@ -1,59 +1,50 @@
 <template>
-  <div class="header">
-    <img src="../assets/homepage.png" alt="home" class="icon" @click="goToHome" />
-
-    <div class="title" @click="goToHome">
-      <h3>대전캠퍼스 식단</h3>
-      <p>{{ today }}</p>
+  <div>
+    <div class="container-fluid bg-primary text-white sticky-top shadow-sm">
+      <div class="d-flex justify-content-between align-items-center p-3">
+        <img src="../assets/homepage.png" alt="home" class="icon" @click="goToHome" />
+        <div class="text-center flex-grow-1">
+          <h3 class="mb-1 fw-bold">대전캠퍼스 식단</h3>
+          <p class="text-white-50">{{ dateStore.date }}</p>
+        </div>
+        <img src="../assets/calendar.png" alt="calendar" class="icon" />
+      </div>
     </div>
 
-    <img src="../assets/calendar.png" alt="calendar" class="icon" @click="goToCalendar" />
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { formatKSTDate } from '../utils/date'
+import { useDateStore } from '../store/dateStore'
+import { formatKSTDate } from '../utils/KSTDate'
 
-const today = formatKSTDate(new Date())
 const router = useRouter()
+const dateStore = useDateStore()
 
-const goToHome = () => router.push({ name: 'home' })
-
-const goToCalendar = () => router.push({ 
-  name: 'calendar',
-  params: { date: today.substring(0, 7) }
-})
+const goToHome = () => {
+  const today = formatKSTDate(new Date())
+  dateStore.setDate(today)
+  router.push({ name: 'menus', params: { date: dateStore.date } })
+}
 </script>
 
 <style scoped>
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #60C9EF;
-  padding: 10px 20px
-}
-
 .icon {
-  width: 30px;
-  height: 30px;
-  cursor: pointer
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
 }
 
-.title {
-  text-align: center;
-  cursor: pointer
+.container-fluid {
+  width: 100%;
 }
 
-h2 {
-  margin: 0;
-  font-size: 18px
+.container {
+  padding-top: 20px;
 }
 
-p {
-  margin: 0;
-  font-size: 16px;
-  font-weight: bold
+.shadow-sm {
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 </style>

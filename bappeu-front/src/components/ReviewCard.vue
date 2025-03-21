@@ -1,16 +1,23 @@
 <template>
-  <div class="review-card">
-    <ul>
-      <li v-for="(item, index) in reviewData" :key="item.food_id">
-        <span class="food-name">{{ item.food_name }}</span>
-        <button class="minus-btn" @click="decreaseScore(index)">-</button>
-        <span class="score">{{ item.score.toFixed(1) }}</span>
-        <button class="plus-btn" @click="increaseScore(index)">+</button>
-      </li>
-    </ul>
-  </div>
-  <div class="review-container">
-    <button class="submit-btn" @click="submitReview">제출</button>
+  <div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+      <h4 class="text-center mb-3">별점을 매겨주세요</h4>
+      
+      <ul class="list-group">
+        <li v-for="(item, index) in reviewData" :key="item.food_id" class="list-group-item d-flex justify-content-between align-items-center">
+          <span class="fw-bold">{{ item.food_name }}</span>
+          <div>
+            <button class="btn btn-outline-danger btn-sm me-2" @click="decreaseScore(index)">-</button>
+            <span class="fs-5">{{ item.score.toFixed(1) }}</span>
+            <button class="btn btn-outline-success btn-sm ms-2" @click="increaseScore(index)">+</button>
+          </div>
+        </li>
+      </ul>
+      
+      <div class="text-center mt-3">
+        <button class="btn btn-primary px-4" @click="submitReview">제출</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -32,108 +39,49 @@ const reviewData = ref(props.menu.foods.map(food => ({
 })))
 
 const increaseScore = index => {
-  if (reviewData.value[index].score < 5) reviewData.value[index].score += 0.5
+  if (reviewData.value[index].score == 5) reviewData.value[index].score = 0
+  else if (reviewData.value[index].score < 5) reviewData.value[index].score += 0.5
 }
 
 const decreaseScore = index => {
-  if (reviewData.value[index].score > 0) reviewData.value[index].score -= 0.5
+  if (reviewData.value[index].score == 0) reviewData.value[index].score = 5
+  else if (reviewData.value[index].score > 0) reviewData.value[index].score -= 0.5
 }
 
 const submitReview = async () => {
   const unReviewedItems = reviewData.value.filter(item => item.score === 0)
 
   if (unReviewedItems.length > 0) {
-    const confirmSubmit = window.confirm(
-      "아직 평가하지 않은 음식이 있습니다.\n" +
-      "이어서 평가하려면 취소 버튼을 눌러주시고,\n" +
-      "모든 음식을 평가했다면 확인 버튼을 눌러주세요."
-    )
-    if (!confirmSubmit) return
+    if (!confirm('평가가 완료되지 않았습니다. 그래도 제출하시겠습니까?')) {
+      return
+    }
   }
+
+  const API_URL = 'http://127.0.0.1:8000/api/v1/foods/score'
 
   try {
-    await Promise.all(reviewData.value.map(item =>
-      axios.post('http://127.0.0.1:8000/api/v1/foods/score', {
-        score: item.score,
-        food_id: item.food_id
-      })
-    ))
-
-    alert('제출 완료!')
-    router.push({ name: 'review-completed' })
+    for (const item of reviewData.value) {
+      const response = await axios.post(API_URL, { score: item.score, food_id: item.food_id })
+      console.log("리뷰 POST 성공:", response.data)
+    }
   } catch (error) {
-    console.error("요청 실패:", error)
-    alert('요청 실패. 콘솔을 확인하세요.')
+    console.error("리뷰 POST 실패:", error);
   }
+
+  router.push({ name: 'review-completed' })
 }
 </script>
 
 <style scoped>
-.review-card {
-  background-color: #60C9EF;
-  padding: 20px;
+.container {
+  max-width: 600px;
+}
+.card {
   border-radius: 12px;
-  text-align: center;
-  width: 90%;
-  max-width: 400px;
-  margin: 0 auto
 }
-
-ul {
-  padding: 0;
-  list-style: none
-}
-
-li {
+.list-group-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0
-}
-
-.food-name {
-  flex: 2;
-  text-align: center;
-  font-weight: bold
-}
-
-.score {
-  flex: 1;
-  text-align: center;
-  font-weight: bold
-}
-
-.minus-btn, .plus-btn {
-  width: 40px;
-  height: 40px;
-  background-color: white;
-  border: none;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 50%
-}
-
-.review-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px
-}
-
-.submit-btn {
-  width: 90%;
-  max-width: 400px;
-  padding: 20px;
-  background-color: #60C9EF;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center
-}
-
-.submit-btn:hover {
-  background-color: #4099E1
 }
 </style>
