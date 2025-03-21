@@ -39,8 +39,8 @@ const reviewData = ref(props.menu.foods.map(food => ({
 })))
 
 const increaseScore = index => {
-  if (reviewData.value[index].score < 5) reviewData.value[index].score += 0.5
-  else if (reviewData.value[index].score == 5) reviewData.value[index].score = 0
+  if (reviewData.value[index].score == 5) reviewData.value[index].score = 0
+  else if (reviewData.value[index].score < 5) reviewData.value[index].score += 0.5
 }
 
 const decreaseScore = index => {

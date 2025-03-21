@@ -40,6 +40,7 @@ import { ref, computed } from 'vue'
 import axios from 'axios'
 
 const date = ref('')
+
 const inputs1 = ref(Array(6).fill(''))
 const inputs2 = ref(Array(6).fill(''))
 
@@ -61,11 +62,18 @@ const submitData = async () => {
   try {
     const API_URL = 'http://127.0.0.1:8000/api/v1/menus/'
 
+    console.log(foods1.value)
+    console.log(foods2.value)
+
     const response1 = await axios.post(API_URL, { foods: foods1.value, date: date.value })
     console.log('식단표1 POST 성공:', response1.data)
 
     const response2 = await axios.post(API_URL, { foods: foods2.value, date: date.value })
     console.log('식단표2 POST 성공:', response2.data)
+
+    date.value = ''
+    inputs1.value = Array(6).fill('')
+    inputs2.value = Array(6).fill('')
 
   } catch (error) {
     console.error('식단표 POST 실패:', error)
