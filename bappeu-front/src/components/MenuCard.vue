@@ -1,12 +1,16 @@
 <template>
   <div class="container mt-4">
     <div class="card shadow-sm p-3" @click="goToReview">
+      <!-- 메뉴 제목 -->
       <h5 class="card-title text-center text-primary">Menu</h5>
+
+      <!-- 메뉴 리스트 (항목 6개 고정) -->
       <ul class="list-group list-group-flush">
         <li
-          v-for="(food, index) in [...menu.foods, ...Array(6 - menu.foods.length).fill({ name: ' ' })].slice(0, 6)"
+          v-for="(food, index) in paddedFoods"
           :key="index"
-          class="list-group-item text-center fixed-height"
+          class="list-group-item text-center"
+          style="font-family: 'GmarketSansMedium';"
         >
           {{ food.name }}
         </li>
@@ -20,6 +24,7 @@ import { useRouter } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
 
+// props: 메뉴 정보 및 인덱스
 const props = defineProps({
   menu: Object,
   menuIndex: Number
@@ -29,6 +34,10 @@ const router = useRouter()
 const menuStore = useMenuStore()
 const dateStore = useDateStore()
 
+// 메뉴 항목이 6개보다 적을 경우 빈 항목으로 채움
+const paddedFoods = [...props.menu.foods, ...Array(6 - props.menu.foods.length).fill({ name: ' ' })].slice(0, 6)
+
+// 메뉴 클릭 시 리뷰 페이지로 이동
 const goToReview = () => {
   menuStore.selectedMenu = props.menu
   router.push({
@@ -53,7 +62,7 @@ const goToReview = () => {
 }
 
 .list-group-item {
-  min-height: 40px; /* 고정된 높이 설정 */
-  white-space: pre; /* 빈 항목도 일정한 높이 유지 */
+  min-height: 40px;
+  white-space: pre;
 }
 </style>
