@@ -1,6 +1,10 @@
 <template>
   <div>
     <Header />
+
+    <br><br><br>
+
+    <!-- 선택된 메뉴에 대한 리뷰 카드 -->
     <ReviewCard :menu="menuStore.selectedMenu" />
   </div>
 </template>

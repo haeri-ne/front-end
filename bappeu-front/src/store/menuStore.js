@@ -16,12 +16,12 @@ export const useMenuStore = defineStore('menu', () => {
       const response = await axios.get(`${API_URL}/api/v1/menus/${date.value}`)
       menus.value = response.data
     } catch (error) {
-      console.error('메뉴 데이터 요청 실패:', error)
+      menus.value = []
     }
   }
 
   return { 
     menus, selectedMenu, 
-    getMenusByDate 
+    getMenusByDate
   }
 })
