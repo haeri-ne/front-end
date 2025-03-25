@@ -4,6 +4,8 @@
 
     <br><br><br>
 
+    <v-btn @click="onClickLog">로그 남기기</v-btn>
+
     <!-- 메뉴 카드 영역 -->
     <div class="container d-flex flex-column align-items-center">
       <div class="row gx-4 gy-3 w-100 justify-content-center text-center">
@@ -35,6 +37,25 @@
 </template>
 
 <script setup>
+import { useLogStore } from '../store/logStore'
+
+const logStore = useLogStore()
+
+function onClickLog() {
+  const uuid = localStorage.getItem('uuid') || (() => {
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
+  })()
+
+  logStore.addLog({
+    uuid,
+    event_name: 'test_button_click 마스코트 대박',
+    timestamp: new Date().toISOString(),
+    page: window.location.href
+  })
+}
+
 import { onMounted, watch } from 'vue'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
