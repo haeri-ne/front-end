@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, watch } from 'vue'
+
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
 import { useLogStore } from '../store/logStore'
