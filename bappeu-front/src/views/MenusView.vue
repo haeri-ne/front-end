@@ -2,11 +2,9 @@
   <div>
     <Header />
 
-    <br><br><br>
-
     <!-- 메뉴 카드 영역 -->
-    <div class="container d-flex flex-column align-items-center">
-      <div class="row gx-4 gy-3 w-100 justify-content-center text-center">
+    <div class="main-content container d-flex flex-column justify-content-center align-items-center text-center">
+      <div class="row gx-4 gy-3 w-100 justify-content-center">
         <!-- 메뉴 카드 1 -->
         <div class="col-md-5 col-10">
           <MenuCard
@@ -27,7 +25,7 @@
       </div>
 
       <!-- 안내 문구 -->
-      <p class="text-center mt-3" style="font-family: 'GmarketSansMedium';">
+      <p class="mt-3" style="font-family: 'GmarketSansMedium';">
         별점을 남길 식단표를 눌러주세요
       </p>
     </div>
@@ -35,25 +33,56 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue'
+import { onMounted, onActivated, watch } from 'vue'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
+import { useLogStore } from '../store/logStore'
+import { formatKSTDate, getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 import Header from '../components/Header.vue'
 import MenuCard from '../components/MenuCard.vue'
 
 const menuStore = useMenuStore()
 const dateStore = useDateStore()
+const logStore = useLogStore()
 
-// 페이지 로딩 시 및 날짜 변경 시 메뉴 데이터 가져오기
 onMounted(() => {
   menuStore.getMenusByDate()
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'view_menus_screen',
+    event_value: null,
+    page_name: 'menus_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
 })
 
-// 달력에서 날짜 선택으로 인해 해당 날짜의 메뉴를 가져와야 하는 경우 처리
+onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'view_menus_screen',
+    event_value: null,
+    page_name: 'menus_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+})
+
 watch(
   () => dateStore.date,
-  () => {
-    menuStore.getMenusByDate()
+  async () => {
+    await menuStore.getMenusByDate()
   }
 )
 </script>
@@ -63,6 +92,13 @@ watch(
   max-width: 960px;
 }
 
+/* 중앙 정렬을 위한 main-content 스타일 */
+.main-content {
+  min-height: calc(100vh - 120px); /* 헤더 높이에 맞춰 조정 (예: 120px) */
+  padding: 20px;
+}
+
+/* 여유 있는 위쪽 마진 */
 .row {
   margin-top: 20px;
 }

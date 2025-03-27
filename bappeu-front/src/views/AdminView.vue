@@ -89,7 +89,7 @@ const submitData = async () => {
   try {
     const API_URL = 'http://127.0.0.1:8000/api/v1/menus/'
 
-    // POST 요청 (2번: 메뉴1, 메뉴2 따로 전송)
+    // POST 요청 (두 번: 메뉴1, 메뉴2 따로 전송)
     const response1 = await axios.post(API_URL, {
       foods: foods1.value,
       date: date.value
@@ -106,6 +106,8 @@ const submitData = async () => {
     date.value = ''
     inputs1.value = Array(6).fill('')
     inputs2.value = Array(6).fill('')
+
+    alert('두 개의 메뉴 등록이 완료되었습니다.')
 
   } catch (error) {
     console.error('식단표 POST 실패:', error)
