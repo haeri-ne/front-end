@@ -1,5 +1,5 @@
 <template>
-  <div class="container text-center mt-5">
+  <div class="wrapper d-flex justify-content-center align-items-center text-center">
     <div class="card p-5 shadow-lg">
       <!-- 완료 메시지 -->
       <h1 class="text-primary mb-3 fw-bold" style="font-family: 'GmarketSansMedium';">
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import { onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDateStore } from '../store/dateStore'
 import { formatKSTDate } from '../utils/KSTDate'
@@ -29,20 +30,72 @@ import { formatKSTDate } from '../utils/KSTDate'
 const router = useRouter()
 const dateStore = useDateStore()
 
-// 오늘 날짜로 홈(메뉴 화면)으로 이동
+onMounted(() => {  
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'view_review_completed_screen',
+    event_value: null,
+    page_name: 'review_completed_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+})
+
+onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'view_review_completed_screen',
+    event_value: null,
+    page_name: 'review_completed_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+})
+
 const goToHome = () => {
   const today = formatKSTDate(new Date())
   dateStore.setDate(today)
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'click_home_button',
+    event_value: null,
+    page_name: 'review_completed_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+
   router.push({ name: 'menus', params: { date: dateStore.date } })
 }
 </script>
 
 <style scoped>
-.container {
-  max-width: 500px;
+.wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 .card {
+  max-width: 500px;
+  width: 100%;
   border-radius: 12px;
   background-color: #f8f9fa;
 }
