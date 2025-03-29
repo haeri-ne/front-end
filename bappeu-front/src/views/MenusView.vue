@@ -4,7 +4,7 @@
 
     <br><br><br>
 
-    <v-btn @click="onClickLog">로그 남기기</v-btn>
+    <!-- <v-btn @click="onClickLog">로그 남기기</v-btn> -->
 
     <!-- 메뉴 카드 영역 -->
     <div class="container d-flex flex-column align-items-center">
