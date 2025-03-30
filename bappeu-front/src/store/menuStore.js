@@ -9,9 +9,6 @@ export const useMenuStore = defineStore('menu', () => {
   const menus = ref([])
   const selectedMenu = ref([])
   const dateStore = useDateStore()
-  const logStore = useLogStore()
-
-  logStore.sendLogs()
 
   const date = computed(() => dateStore.date)
 

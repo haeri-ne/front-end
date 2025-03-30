@@ -9,13 +9,15 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { onMounted, onActivated, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { onMounted, ref, watch } from 'vue'
 import { useDateStore } from '../store/dateStore'
 import { useLogStore } from '../store/logStore'
 import { formatKSTDate, getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 
 const router = useRouter()
+const route = useRoute()
+
 const dateStore = useDateStore()
 const logStore = useLogStore()
 
@@ -31,7 +33,7 @@ onMounted(() => {
   logStore.addLog({
     user_id: uuid,
     event_name: 'view_home_screen',
-    event_value: null,
+    event_value: {},
     page_name: 'home_view',
     event_time: getKSTDateTimeStringWithMs(new Date()),
   })
@@ -49,21 +51,27 @@ onMounted(() => {
   }, 1500)
 })
 
-onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath === '/' && oldPath !== '/') {
+      // 뒤로 가기로 홈 화면에 다시 진입했을 때 실행
+      const uuid = localStorage.getItem('uuid') || (() => {
+        const newId = crypto.randomUUID()
+        localStorage.setItem('uuid', newId)
+        return newId
+      })()
 
-  logStore.addLog({
-    user_id: uuid,
-    event_name: 'view_home_screen',
-    event_value: null,
-    page_name: 'home_view',
-    event_time: getKSTDateTimeStringWithMs(new Date()),
-  })
-})
+      logStore.addLog({
+        user_id: uuid,
+        event_name: 'view_home_screen',
+        event_value: {},
+        page_name: 'home_view',
+        event_time: getKSTDateTimeStringWithMs(new Date()),
+      })
+    }
+  }
+)
 </script>
 
 <style scoped>

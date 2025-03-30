@@ -2,8 +2,6 @@
   <div>
     <Header />
 
-    <br><br><br>
-
     <!-- 메뉴 카드 영역 -->
     <div class="main-content container d-flex flex-column justify-content-center align-items-center text-center">
       <div class="row gx-4 gy-3 w-100 justify-content-center">
@@ -36,6 +34,7 @@
 
 <script setup>
 import { onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
 import { useLogStore } from '../store/logStore'
@@ -46,41 +45,40 @@ import MenuCard from '../components/MenuCard.vue'
 const menuStore = useMenuStore()
 const dateStore = useDateStore()
 const logStore = useLogStore()
+const route = useRoute()
+
+const logMenusView = () => {
+  const uuid = localStorage.getItem('uuid') || (() => {
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'view_menus_screen',
+    event_value: {},
+    page_name: 'menus_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+}
 
 onMounted(() => {
   menuStore.getMenusByDate()
-
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
-
-  logStore.addLog({
-    user_id: uuid,
-    event_name: 'view_menus_screen',
-    event_value: null,
-    page_name: 'menus_view',
-    event_time: getKSTDateTimeStringWithMs(new Date()),
-  })
+  logMenusView()
 })
 
-onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
+// 뒤로 가기 등으로 다시 진입할 때 감지
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath.startsWith('/menus/') && oldPath !== newPath) {
+      logMenusView()
+    }
+  }
+)
 
-  logStore.addLog({
-    user_id: uuid,
-    event_name: 'view_menus_screen',
-    event_value: null,
-    page_name: 'menus_view',
-    event_time: getKSTDateTimeStringWithMs(new Date()),
-  })
-})
-
+// 날짜 변경 시 메뉴 다시 불러오기
 watch(
   () => dateStore.date,
   async () => {

@@ -6,31 +6,35 @@ export const useLogStore = defineStore('log', () => {
   const logs = ref([])
 
   const addLog = (log) => {
+    if (log.event_value === null) log.event_value = {} // null → {}
     logs.value.push(log)
-    // console.log(logs.value)
   }
 
   const sendLogs = async () => {
     if (logs.value.length === 0) return
-  
-    const logsToSend = [...logs.value]
-    const userId = logsToSend[0]?.user_id || ''
-  
-    try {
-      await axios.post('/api/v1/logs/front', logsToSend, {
-        headers: {
-          'Content-Type': 'application/json',
-          'user_id': userId
-        }
-      })
-      logs.value = [] // 성공 시 로그 초기화
-    } catch (error) {
-      console.error('로그 전송 실패:', error)
+
+    const remainingLogs = []
+
+    for (const log of logs.value) {
+      try {
+        await axios.post('http://localhost:8000/api/v1/logs/front', log, {
+          headers: {
+            'Content-Type': 'application/json',
+            'user_id': log.user_id
+          }
+        })
+        console.log('로그 전송 성공:', log)
+      } catch (error) {
+        console.error('로그 전송 실패:', error.response?.data || error)
+        remainingLogs.push(log) // 실패한 건 남겨둠
+      }
     }
+
+    logs.value = remainingLogs // 실패한 로그만 다시 보낼 수 있도록 보관
   }
 
   return {
-    logs, 
+    logs,
     addLog, sendLogs
   }
 })

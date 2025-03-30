@@ -10,44 +10,46 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated } from 'vue'
+import { onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
+import { useLogStore } from '../store/logStore'
+import { getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 import Header from '../components/Header.vue'
 import ReviewCard from '../components/ReviewCard.vue'
 
 const menuStore = useMenuStore()
+const logStore = useLogStore()
+const route = useRoute()
 
-onMounted(() => {  
+const logReviewView = () => {
   const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
   })()
 
   logStore.addLog({
     user_id: uuid,
     event_name: 'view_review_screen',
-    event_value: null,
+    event_value: {},
     page_name: 'review_view',
     event_time: getKSTDateTimeStringWithMs(new Date()),
   })
+}
+
+onMounted(() => {
+  logReviewView()
 })
 
-onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
-
-  logStore.addLog({
-    user_id: uuid,
-    event_name: 'view_review_screen',
-    event_value: null,
-    page_name: 'review_view',
-    event_time: getKSTDateTimeStringWithMs(new Date()),
-  })
-})
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath.startsWith('/review') && oldPath !== newPath) {
+      logReviewView()
+    }
+  }
+)
 </script>
 
 <style scoped>

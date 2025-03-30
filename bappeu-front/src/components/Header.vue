@@ -42,6 +42,16 @@ const logStore = useLogStore()
 const dateInput = ref(null)
 const lastSelectedDate = ref(dateStore.date)
 
+const url = window.location.href
+const page_name = ref('')
+
+if (url.includes('menus')) {
+  page_name.value = 'menus_view'
+}
+else if (url.includes('review')) {
+  page_name.value = 'review_view'
+}
+
 // 홈 버튼 클릭
 const goToHome = () => {
   const today = formatKSTDate(new Date())
@@ -53,20 +63,10 @@ const goToHome = () => {
       return newId
   })()
 
-  const url = window.location.href
-  const page_name = ref('')
-
-  if (url.includes('menus')) {
-    page_name.value = 'menus_view'
-  }
-  else if (url.includes('review')) {
-    page_name.value = 'review_view'
-  }
-
   logStore.addLog({
     user_id: uuid,
     event_name: 'click_home_button',
-    event_value: null,
+    event_value: {},
     page_name: page_name.value,
     event_time: getKSTDateTimeStringWithMs(new Date()),
   })
@@ -90,7 +90,7 @@ const onDateChange = (e) => {
     logStore.addLog({
       user_id: uuid,
       event_name: 'click_calendar',
-      event_value: selectedDate,
+      event_value: { selected_date: selectedDate },
       page_name: page_name.value,
       event_time: getKSTDateTimeStringWithMs(new Date()),
     })
@@ -108,14 +108,12 @@ const openDatePicker = () => {
 .icon {
   width: 35px;
   height: 35px;
-  cursor: pointer;
 }
 
 .calendar-wrapper {
   width: 35px;
   height: 35px;
   position: relative;
-  cursor: pointer;
 }
 
 .hidden-date-input {
@@ -130,7 +128,6 @@ const openDatePicker = () => {
   padding: 0;
   border: none;
   background: none;
-  cursor: pointer;
 }
 
 /* 제목 텍스트 스타일 */

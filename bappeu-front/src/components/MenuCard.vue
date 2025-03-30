@@ -52,7 +52,7 @@ const goToReview = () => {
     logStore.addLog({
       user_id: uuid,
       event_name: 'click_menu',
-      event_value: props.menu.id,
+      event_value: { menu_id: props.menu.id },
       page_name: 'menus_view',
       event_time: getKSTDateTimeStringWithMs(new Date()),
     })

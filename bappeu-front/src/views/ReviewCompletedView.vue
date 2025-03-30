@@ -22,60 +22,57 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useDateStore } from '../store/dateStore'
-import { formatKSTDate } from '../utils/KSTDate'
+import { useLogStore } from '../store/logStore'
+import { formatKSTDate, getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 
 const router = useRouter()
+const route = useRoute()
 const dateStore = useDateStore()
+const logStore = useLogStore()
 
-onMounted(() => {  
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
+const getUUID = () => {
+  return localStorage.getItem('uuid') || (() => {
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
   })()
+}
 
+const logPageView = () => {
   logStore.addLog({
-    user_id: uuid,
+    user_id: getUUID(),
     event_name: 'view_review_completed_screen',
-    event_value: null,
+    event_value: {},
     page_name: 'review_completed_view',
     event_time: getKSTDateTimeStringWithMs(new Date()),
   })
+}
+
+onMounted(() => {
+  logPageView()
 })
 
-onActivated(() => { // 뒤로 가기 등으로 다시 진입할 때 실행
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
-
-  logStore.addLog({
-    user_id: uuid,
-    event_name: 'view_review_completed_screen',
-    event_value: null,
-    page_name: 'review_completed_view',
-    event_time: getKSTDateTimeStringWithMs(new Date()),
-  })
-})
+// 뒤로 가기 등으로 재진입 시 감지
+watch(
+  () => route.fullPath,
+  (newPath, oldPath) => {
+    if (newPath.includes('review-completed') && oldPath !== newPath) {
+      logPageView()
+    }
+  }
+)
 
 const goToHome = () => {
   const today = formatKSTDate(new Date())
   dateStore.setDate(today)
 
-  const uuid = localStorage.getItem('uuid') || (() => {
-      const newId = crypto.randomUUID()
-      localStorage.setItem('uuid', newId)
-      return newId
-  })()
-
   logStore.addLog({
-    user_id: uuid,
+    user_id: getUUID(),
     event_name: 'click_home_button',
-    event_value: null,
+    event_value: {},
     page_name: 'review_completed_view',
     event_time: getKSTDateTimeStringWithMs(new Date()),
   })
