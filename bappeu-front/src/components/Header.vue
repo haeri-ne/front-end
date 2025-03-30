@@ -5,9 +5,13 @@
       <img src="../assets/home.png" alt="home" class="icon" @click="goToHome" />
 
       <!-- 제목 + 날짜 -->
-      <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-        <h3 class="mb-1 fw-bold" style="font-family: 'GmarketSansBold';">SSAFY 대전캠퍼스 식단표</h3>
-        <p class="text-white-50 mb-0" style="font-family: 'GmarketSansBold';">{{ dateStore.date }}</p>
+      <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 text-center">
+        <h3 class="mb-1 fw-bold title-text">
+          SSAFY 대전캠퍼스 식단표
+        </h3>
+        <p class="text-white-50 mb-0" style="font-family: 'GmarketSansBold';">
+          {{ dateStore.date }}
+        </p>
       </div>
 
       <!-- 달력 아이콘 + 숨겨진 input -->
@@ -25,51 +29,91 @@
 </template>
 
 <script setup>
-// 외부 모듈 및 상태 관리 스토어 임포트
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDateStore } from '../store/dateStore'
-import { formatKSTDate } from '../utils/KSTDate'
+import { formatKSTDate, getKSTDateTimeStringWithMs } from '../utils/KSTDate'
+import { useLogStore } from '../store/logStore'
 
 const router = useRouter()
 const dateStore = useDateStore()
+const logStore = useLogStore()
 
 const dateInput = ref(null)
 const lastSelectedDate = ref(dateStore.date)
 
-// 홈 아이콘 클릭 시 오늘 날짜로 이동
+// 홈 버튼 클릭
 const goToHome = () => {
   const today = formatKSTDate(new Date())
   dateStore.setDate(today)
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  const url = window.location.href
+  const page_name = ref('')
+
+  if (url.includes('menus')) {
+    page_name.value = 'menus_view'
+  }
+  else if (url.includes('review')) {
+    page_name.value = 'review_view'
+  }
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'click_home_button',
+    event_value: null,
+    page_name: page_name.value,
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
+
   router.push({ name: 'menus', params: { date: today } })
 }
 
-// 날짜 선택 시 라우팅 및 상태 업데이트
+// 캘린더에서 날짜 선택
 const onDateChange = (e) => {
   const selectedDate = e.target.value
   if (selectedDate && selectedDate !== lastSelectedDate.value) {
     lastSelectedDate.value = selectedDate
     dateStore.setDate(selectedDate)
+
+    const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+    })()
+
+    logStore.addLog({
+      user_id: uuid,
+      event_name: 'click_calendar',
+      event_value: selectedDate,
+      page_name: page_name.value,
+      event_time: getKSTDateTimeStringWithMs(new Date()),
+    })
+
     router.push({ name: 'menus', params: { date: selectedDate } })
   }
 }
 
-// 달력 아이콘 클릭 시 date picker 열기
 const openDatePicker = () => {
-  dateInput.value?.showPicker?.() || dateInput.value?.click()
+  dateInput.value?.click()
 }
 </script>
 
 <style scoped>
 .icon {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   cursor: pointer;
 }
 
 .calendar-wrapper {
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   position: relative;
   cursor: pointer;
 }
@@ -87,5 +131,19 @@ const openDatePicker = () => {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+/* 제목 텍스트 스타일 */
+.title-text {
+  font-family: 'GmarketSansBold';
+  white-space: nowrap;
+  font-size: 1.5rem;
+}
+
+/* 모바일 화면에서 폰트 크기 줄이기 */
+@media (max-width: 576px) {
+  .title-text {
+    font-size: 1.1rem;
+  }
 }
 </style>
