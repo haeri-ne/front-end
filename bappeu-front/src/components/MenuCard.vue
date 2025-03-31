@@ -23,6 +23,8 @@
 import { useRouter } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
+import { useLogStore } from '../store/logStore'
+import { getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 
 // props: 메뉴 정보 및 인덱스
 const props = defineProps({
@@ -33,6 +35,7 @@ const props = defineProps({
 const router = useRouter()
 const menuStore = useMenuStore()
 const dateStore = useDateStore()
+const logStore = useLogStore()
 
 // 메뉴 항목이 6개보다 적을 경우 빈 항목으로 채움
 const paddedFoods = [...props.menu.foods, ...Array(6 - props.menu.foods.length).fill({ name: ' ' })].slice(0, 6)
@@ -40,6 +43,21 @@ const paddedFoods = [...props.menu.foods, ...Array(6 - props.menu.foods.length).
 // 메뉴 클릭 시 리뷰 페이지로 이동
 const goToReview = () => {
   menuStore.selectedMenu = props.menu
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+    })()
+
+    logStore.addLog({
+      user_id: uuid,
+      event_name: 'click_menu',
+      event_value: { menu_id: props.menu.id },
+      page_name: 'menus_view',
+      event_time: getKSTDateTimeStringWithMs(new Date()),
+    })
+
   router.push({
     name: 'review',
     params: {

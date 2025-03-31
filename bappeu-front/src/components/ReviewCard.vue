@@ -64,12 +64,15 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useLogStore } from '../store/logStore'
+import { getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 
 const props = defineProps({
   menu: Object
 })
 
 const router = useRouter()
+const logStore = useLogStore()
 
 // 별점 평가를 위한 데이터 초기화
 const reviewData = ref(
@@ -84,12 +87,40 @@ const reviewData = ref(
 const increaseScore = (index) => {
   const score = reviewData.value[index].score
   reviewData.value[index].score = score === 5 ? 0 : score + 0.5
+  
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'increase_food_score',
+    event_value: { food_id: reviewData.value[index].food_id, now_score: reviewData.value[index].score },
+    page_name: 'review_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
 }
 
 // 점수 감소 (0.5 단위, 0점이면 5점으로 초기화)
 const decreaseScore = (index) => {
   const score = reviewData.value[index].score
   reviewData.value[index].score = score === 0 ? 5 : score - 0.5
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+      const newId = crypto.randomUUID()
+      localStorage.setItem('uuid', newId)
+      return newId
+  })()
+
+  logStore.addLog({
+    user_id: uuid,
+    event_name: 'decrease_food_score',
+    event_value: { food_id: reviewData.value[index].food_id, now_score: reviewData.value[index].score },
+    page_name: 'review_view',
+    event_time: getKSTDateTimeStringWithMs(new Date()),
+  })
 }
 
 // 별 렌더링 함수: ★(1점), ⯪(0.5점), ☆(0점)
@@ -102,6 +133,15 @@ const renderStar = (score, index) => {
 
 // 리뷰 제출
 const submitReview = async () => {
+  // 로그 백엔드로 넘기기
+  await logStore.sendLogs()
+
+  const uuid = localStorage.getItem('uuid') || (() => {
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
+  })()
+
   const unReviewedItems = reviewData.value.filter((item) => item.score === 0)
 
   if (unReviewedItems.length > 0) {
@@ -116,6 +156,10 @@ const submitReview = async () => {
       const response = await axios.post(API_URL, {
         food_id: item.food_id,
         score: item.score
+      },{
+        headers: {
+          'user-id': uuid
+        }
       })
       console.log('리뷰 POST 성공:', response.data)
     }
