@@ -14,7 +14,19 @@ export const useMenuStore = defineStore('menu', () => {
 
   const getMenusByDate = async () => {
     try {
-      const response = await axios.get(`${API_URL}/api/v1/menus/${date.value}`)
+      const uuid = localStorage.getItem('uuid') || (() => {
+        const newId = crypto.randomUUID()
+        localStorage.setItem('uuid', newId)
+        return newId
+      })()
+
+      const response = await axios.get(`${API_URL}/api/v1/menus/${date.value}`,
+        {
+          headers: {
+            'user-id': uuid
+          }
+        }
+      )
       menus.value = response.data
     } catch (error) {
       menus.value = []

@@ -136,6 +136,12 @@ const submitReview = async () => {
   // 로그 백엔드로 넘기기
   await logStore.sendLogs()
 
+  const uuid = localStorage.getItem('uuid') || (() => {
+    const newId = crypto.randomUUID()
+    localStorage.setItem('uuid', newId)
+    return newId
+  })()
+
   const unReviewedItems = reviewData.value.filter((item) => item.score === 0)
 
   if (unReviewedItems.length > 0) {
@@ -150,6 +156,10 @@ const submitReview = async () => {
       const response = await axios.post(API_URL, {
         food_id: item.food_id,
         score: item.score
+      },{
+        headers: {
+          'user-id': uuid
+        }
       })
       console.log('리뷰 POST 성공:', response.data)
     }

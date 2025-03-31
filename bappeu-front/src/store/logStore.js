@@ -20,7 +20,7 @@ export const useLogStore = defineStore('log', () => {
         await axios.post('http://localhost:8000/api/v1/logs/front', log, {
           headers: {
             'Content-Type': 'application/json',
-            'user_id': log.user_id
+            'user-id': log.user_id
           }
         })
         console.log('로그 전송 성공:', log)
