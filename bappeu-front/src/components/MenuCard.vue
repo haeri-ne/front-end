@@ -24,6 +24,7 @@ import { useRouter } from 'vue-router'
 import { useMenuStore } from '../store/menuStore'
 import { useDateStore } from '../store/dateStore'
 import { useLogStore } from '../store/logStore'
+import { getKSTDateTimeStringWithMs } from '../utils/KSTDate'
 
 // props: 메뉴 정보 및 인덱스
 const props = defineProps({

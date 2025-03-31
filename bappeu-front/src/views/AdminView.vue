@@ -71,9 +71,15 @@ const token = ref('')
 // 로그인 요청
 const login = async () => {
   try {
-    const res = await axios.post('http://127.0.0.1:8000/login', {
-      username: username.value,
-      password: password.value
+    const params = new URLSearchParams()
+    params.append('username', username.value)
+    params.append('password', password.value)
+    params.append('grant_type', 'password')
+
+    const res = await axios.post('http://127.0.0.1:8000/api/v1/auth/token', params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     })
 
     token.value = res.data.access_token
@@ -86,6 +92,7 @@ const login = async () => {
     alert('아이디 또는 비밀번호가 틀렸습니다.')
   }
 }
+
 
 // 로그아웃
 const logout = () => {
