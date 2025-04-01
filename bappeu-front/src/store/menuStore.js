@@ -5,7 +5,6 @@ import { useLogStore } from './logStore'
 import axios from 'axios'
 
 export const useMenuStore = defineStore('menu', () => {
-  const API_URL = 'http://127.0.0.1:8000'
   const menus = ref([])
   const selectedMenu = ref([])
   const dateStore = useDateStore()
@@ -20,7 +19,9 @@ export const useMenuStore = defineStore('menu', () => {
         return newId
       })()
 
-      const response = await axios.get(`${API_URL}/api/v1/menus/${date.value}`,
+      const API_URL = `${import.meta.env.API_BASE_URL}/api/v1/menus/${date.value}`
+
+      const response = await axios.get(API_URL,
         {
           headers: {
             'user-id': uuid
