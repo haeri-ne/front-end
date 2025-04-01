@@ -76,7 +76,7 @@ const login = async () => {
     params.append('password', password.value)
     params.append('grant_type', 'password')
 
-    const res = await axios.post(`${import.meta.env.API_BASE_URL}/api/v1/auth/token`, params, {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/auth/token`, params, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       }
@@ -131,7 +131,7 @@ const submitData = async () => {
   }
 
   try {
-    const API_URL = `${import.meta.env.API_BASE_URL}/api/v1/menus/`
+    const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/menus/`
 
     await axios.post(API_URL, {
       foods: foods1.value,
