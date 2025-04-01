@@ -14,10 +14,11 @@ export const useLogStore = defineStore('log', () => {
     if (logs.value.length === 0) return
 
     const remainingLogs = []
+    const API_URL = `${import.meta.env.API_BASE_URL}/api/v1/logs/front`
 
     for (const log of logs.value) {
       try {
-        await axios.post('http://localhost:8000/api/v1/logs/front', log, {
+        await axios.post(API_URL, log, {
           headers: {
             'Content-Type': 'application/json',
             'user-id': log.user_id
