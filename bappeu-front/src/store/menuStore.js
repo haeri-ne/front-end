@@ -19,7 +19,7 @@ export const useMenuStore = defineStore('menu', () => {
         return newId
       })()
 
-      const API_URL = `${import.meta.env.API_BASE_URL}/api/v1/menus/${date.value}`
+      const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/menus/${date.value}`
 
       const response = await axios.get(API_URL,
         {

@@ -149,7 +149,7 @@ const submitReview = async () => {
     if (!confirmSubmit) return
   }
 
-  const API_URL = `${import.meta.env.API_BASE_URL}/api/v1/foods/score`
+  const API_URL = `${import.meta.env.VITE_API_BASE_URL}/api/v1/foods/score`
 
   try {
     for (const item of reviewData.value) {
