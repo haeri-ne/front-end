@@ -3,10 +3,11 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useLogStore } from './store/logStore'
 
 const logStore = useLogStore()
+const intervalId = ref(null)
 
 const handleBeforeUnload = () => {
   if (logStore.logs.length > 0) {
@@ -19,10 +20,12 @@ const handleBeforeUnload = () => {
 
 onMounted(() => {
   window.addEventListener('beforeunload', handleBeforeUnload)
+  intervalId.value = setInterval(logStore.sendLogs, 10000)
 })
 
 onUnmounted(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload)
+  clearInterval(intervalId.value)
 })
 </script>
 

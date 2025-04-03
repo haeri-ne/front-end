@@ -133,9 +133,6 @@ const renderStar = (score, index) => {
 
 // 리뷰 제출
 const submitReview = async () => {
-  // 로그 백엔드로 넘기기
-  await logStore.sendLogs()
-
   const uuid = localStorage.getItem('uuid') || (() => {
     const newId = crypto.randomUUID()
     localStorage.setItem('uuid', newId)
